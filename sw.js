@@ -1,5 +1,5 @@
 // Offline cache. Serves the cached app instantly, then refreshes it in the background.
-const CACHE = 'overload-v4';
+const CACHE = 'overload-v5';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable.png'];
 
 self.addEventListener('install', e => {
