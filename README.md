@@ -19,3 +19,15 @@ Replace the files in the repo with new versions. The app picks up the update the
 ## Your data
 
 Everything is stored on your phone. Use **Library → Settings → Export backup** now and then, and keep the file in Google Drive.
+
+## Google Drive auto-sync (one-time setup, about 10 minutes)
+
+Google requires every app that touches Drive to have its own "client ID". You make one once, for free:
+
+1. Go to https://console.cloud.google.com and create a project called **Overload**.
+2. **APIs & Services → Library**: search for **Google Drive API** and click **Enable**.
+3. **APIs & Services → OAuth consent screen** (shown as "Google Auth Platform"): click Get started, App name **Overload**, pick your email, Audience **External**, then finish. Under **Audience → Test users**, add your own Gmail address.
+4. **Clients → Create client**: Application type **Web application**. Under **Authorized JavaScript origins**, add `https://nick-byrum.github.io`. Create, then copy the **Client ID**.
+5. In the app: **Library → Settings → Google Drive sync**. Paste the ID, tap **Save**, then tap **Connect Google Drive**.
+
+Google will warn that the app "hasn't been verified". That's expected because it's your own app: tap **Continue**. The app can only see the one file it creates (`overload-backup.json`), not the rest of your Drive.

@@ -179,7 +179,8 @@ let S;
 try{S=JSON.parse(localStorage.getItem(KEY))||blank()}catch(e){S=blank()}
 S=Object.assign(blank(),S);S.settings=Object.assign(blank().settings,S.settings);
 let saveT;
-function save(now){clearTimeout(saveT);const w=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Could not save — storage full')}};now?w():saveT=setTimeout(w,250)}
+let gT;
+function save(now){clearTimeout(saveT);const w=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Could not save — storage full')}};now?w():saveT=setTimeout(w,250);if(S.settings.gOn&&gReady()){clearTimeout(gT);gT=setTimeout(gSync,8000)}}
 addEventListener('pagehide',()=>save(true));
 document.addEventListener('visibilitychange',()=>{if(document.hidden)save(true)});
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
@@ -482,9 +483,10 @@ function vLib(){
     h+=`<button class="btn pri block" data-act="editEx">+ New exercise</button>`;
   }else{
     h+=`<div class="card"><b>Rest timer</b><div class="sub">Starts when you check off a set</div><div class="gap"></div><div class="seg">${[60,90,120,180,240].map(v=>`<button data-act="rest" data-v="${v}" class="${S.settings.rest===v?'on':''}">${mmss(v)}</button>`).join('')}</div></div>`;
+    h+=driveCard();
     h+=`<div class="card"><b>Backup</b><div class="sub">Your data lives on this phone only. Export a backup now and then and keep it in Google Drive.${S.lastBackup?` Last backup: ${fmtD(dk(S.lastBackup))}.`:' No backup yet.'}</div><div class="gap"></div><div class="row"><button class="btn sp" data-act="export">Export backup</button><button class="btn sp" data-act="import">Import backup</button></div><input type="file" id="impF" accept=".json,application/json" hidden></div>`;
     h+=`<div class="card"><div class="row"><div class="sp"><b>Erase everything</b><div class="sub">Can't be undone</div></div><button class="btn sm danger" data-act="wipe">Erase</button></div></div>`;
-    h+=`<div class="muted-note" style="text-align:center">Overload v1 · ${pl(S.sessions.filter(s=>s.finishedAt).length,'workout')} logged</div>`;
+    h+=`<div class="muted-note" style="text-align:center">Overload v1.1 · ${pl(S.sessions.filter(s=>s.finishedAt).length,'workout')} logged</div>`;
   }
   return h;
 }
@@ -668,7 +670,7 @@ const A={
   // progress
   metric:d=>{UI.metric=d.v;render()},
   // weight
-  bwSave:()=>{const v=parseFloat($('#bwV').value.replace(',','.')),dd=$('#bwD').value;if(!(v>0)||!dd)return toast('Enter your weight');S.bw[dd]=r1(v);save();render();toast('Saved')},
+  bwSave:()=>{const v=parseFloat($('#bwV').value.replace(',','.')),dd=$('#bwD').value;if(!(v>0)||!dd)return toast('Enter your weight');S.bw[dd]=r1(v);save();render();toast('Saved');gTouch()},
   bwDel:d=>confirmSheet(`Delete weigh-in for ${fmtD(d.v)}?`,'Delete',()=>{delete S.bw[d.v];save();render()}),
   bwRange:d=>{UI.bwRange=+d.v;render()},
   // library
@@ -683,8 +685,15 @@ const A={
     setTimeout(()=>URL.revokeObjectURL(a.href),4000);render();
   },
   import:()=>{const f=$('#impF');f.onchange=async()=>{const file=f.files[0];if(!file)return;try{const d=JSON.parse(await file.text());if(!d||!Array.isArray(d.sessions)||!Array.isArray(d.exercises))throw 0;
-    confirmSheet('Replace all current data with this backup?','Replace',()=>{S=Object.assign(blank(),d);save(true);render();toast('Backup restored')})}catch(e){toast('That file isn’t an Overload backup')}};f.click()},
+    confirmSheet('Replace all current data with this backup?','Replace',()=>{const keep=gKeep();S=Object.assign(blank(),d);S.settings=Object.assign(blank().settings,S.settings,keep);save(true);render();toast('Backup restored')})}catch(e){toast('That file isn’t an Overload backup')}};f.click()},
   wipe:()=>confirmSheet('Erase all workouts, exercises and weigh-ins?','Erase everything',()=>{S=blank();T=null;save(true);render()}),
+  // google drive
+  gSaveId:()=>{const v=($('#gcid').value||'').trim();if(!/\.apps\.googleusercontent\.com$/.test(v))return toast('That doesn’t look like a client ID');S.settings.gcid=v;G.client=null;save(true);gBoot();render();toast('Saved — now tap Connect')},
+  gEditId:()=>{S.settings.gOn=false;S.settings.gcid='';G.client=null;save(true);render()},
+  gConnect:()=>gAuth('consent'),
+  gSyncNow:()=>{if(gReady())gSync(true);else gAuth('')},
+  gRestore:()=>{if(gReady())gRestore();else gAuth('',gRestore)},
+  gOff:()=>confirmSheet('Stop syncing to Google Drive? Your Drive file stays put.','Disconnect',()=>{S.settings.gOn=false;G.tok=null;try{localStorage.removeItem('overload.gtok')}catch(e){}save(true);render()}),
   // timer
   tAdd:d=>{if(T){T.end+=+d.v*1000;T.dur=Math.max(1,T.dur+ +d.v);T.fired=false;tickTimer()}},
   tSkip:()=>{T=null;tickTimer()},
@@ -712,7 +721,7 @@ function finishSession(){
     // PRs vs all earlier history
     s.prs=[];
     s.entries.forEach(en=>{const h=history(en.exId,s.id);const b=bestE1(en.log);if(h.length&&b>Math.max(...h.map(x=>bestE1(x.done)))+0.01)s.prs.push(en.exId)});
-    s.finishedAt=Date.now();T=null;save(true);render();
+    s.finishedAt=Date.now();T=null;save(true);render();gTouch();
     const sets=s.entries.reduce((a,en)=>a+en.log.length,0),mins=Math.round((s.finishedAt-s.startedAt)/60000);
     const vol={};s.entries.forEach(en=>addVol(vol,en.exId,en.log.length));
     sheet(`<h3>Workout done</h3><div class="stats"><div class="stat"><span>Time</span><b>${mins}m</b></div><div class="stat"><span>Sets</span><b>${sets}</b></div><div class="stat"><span>PRs</span><b class="${s.prs.length?'up':''}">${s.prs.length}</b></div></div>
@@ -783,9 +792,82 @@ function tickTimer(){
 }
 setInterval(()=>{tickTimer();const a=active(),el=$('#elapsed');if(a&&el)el.textContent=mmss((Date.now()-a.startedAt)/1000)},250);
 
+/* ================= google drive sync ================= */
+const G={tok:null,exp:0,client:null,busy:false,pending:false,after:null,err:null};
+try{const t=JSON.parse(localStorage.getItem('overload.gtok')||'null');if(t&&t.exp>Date.now()){G.tok=t.tok;G.exp=t.exp}}catch(e){}
+function gReady(){return !!G.tok&&G.exp>Date.now()+60e3}
+function gKeep(){return{gcid:S.settings.gcid,gOn:S.settings.gOn,gFile:S.settings.gFile,gLast:S.settings.gLast}}
+function gBoot(){
+  if(!S.settings.gcid)return;
+  const init=()=>{try{G.client=google.accounts.oauth2.initTokenClient({client_id:S.settings.gcid,scope:'https://www.googleapis.com/auth/drive.file',
+    callback:r=>{if(r.error){toast('Google sign-in failed');return}
+      G.tok=r.access_token;G.exp=Date.now()+(+r.expires_in||3600)*1000;G.err=null;
+      try{localStorage.setItem('overload.gtok',JSON.stringify({tok:G.tok,exp:G.exp}))}catch(e){}
+      const first=!S.settings.gOn;S.settings.gOn=true;save(true);
+      const f=G.after;G.after=null;if(f)f();else gSync(first);render()},
+    error_callback:()=>toast('Google sign-in closed')})}catch(e){G.err='Bad client ID'}};
+  if(window.google&&google.accounts&&google.accounts.oauth2)return init();
+  if(document.getElementById('gsi'))return;
+  const sc=document.createElement('script');sc.id='gsi';sc.src='https://accounts.google.com/gsi/client';sc.async=true;sc.onload=init;sc.onerror=()=>{G.err='Offline — can’t reach Google';sc.remove()};document.head.appendChild(sc);
+}
+function gAuth(prompt,after){if(!G.client){gBoot();return toast('Google sign-in is loading — tap again in a second')}G.after=after||null;G.client.requestAccessToken({prompt})}
+// Called from taps (finish workout, save weight): refreshes the token if needed, which Google only allows during a tap.
+function gTouch(){if(!S.settings.gOn)return;if(gReady())gSync();else if(G.client&&navigator.onLine)gAuth('')}
+async function gApi(url,opt={}){
+  const r=await fetch(url,{...opt,headers:{...(opt.headers||{}),Authorization:'Bearer '+G.tok}});
+  if(r.status===401||r.status===403){G.tok=null;G.exp=0;throw new Error('Google sign-in expired — tap Sync now')}
+  return r;
+}
+async function gFindFile(){
+  if(S.settings.gFile)return S.settings.gFile;
+  const q=encodeURIComponent("name='overload-backup.json' and trashed=false");
+  const r=await gApi(`https://www.googleapis.com/drive/v3/files?q=${q}&spaces=drive&orderBy=modifiedTime%20desc&fields=files(id)`);
+  if(!r.ok)throw new Error('Drive error '+r.status);
+  const j=await r.json();return j.files&&j.files[0]?j.files[0].id:null;
+}
+async function gSync(loud){
+  if(!S.settings.gOn||!gReady()||!navigator.onLine)return;
+  if(G.busy){G.pending=true;return}
+  G.busy=true;clearTimeout(gT);
+  try{
+    const body=JSON.stringify(S);let id=await gFindFile();
+    if(id){const r=await gApi(`https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=media`,{method:'PATCH',headers:{'Content-Type':'application/json'},body});
+      if(r.status===404){S.settings.gFile=null;id=null}else if(!r.ok)throw new Error('Drive error '+r.status)}
+    if(!id){const b='ovl'+Date.now();
+      const mp=`--${b}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify({name:'overload-backup.json',mimeType:'application/json'})}\r\n--${b}\r\nContent-Type: application/json\r\n\r\n${body}\r\n--${b}--`;
+      const r=await gApi('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+b},body:mp});
+      if(!r.ok)throw new Error('Drive error '+r.status);id=(await r.json()).id}
+    S.settings.gFile=id;S.settings.gLast=Date.now();G.err=null;
+    try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+    if(loud)toast('Synced to Google Drive');
+  }catch(e){G.err=e.message;if(loud)toast(e.message)}
+  finally{G.busy=false;if(G.pending){G.pending=false;setTimeout(gSync,1500)}if(UI.tab==='lib'&&UI.lib==='data')render()}
+}
+async function gRestore(){
+  try{
+    const id=await gFindFile();if(!id)return toast('No Overload backup in your Drive yet');
+    const r=await gApi(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`);if(!r.ok)throw new Error('Drive error '+r.status);
+    const d=await r.json();if(!d||!Array.isArray(d.sessions))throw new Error('Drive file isn’t an Overload backup');
+    const n=d.sessions.filter(x=>x.finishedAt).length;
+    confirmSheet(`Replace the data on this phone with your Drive backup (${pl(n,'workout')})?`,'Replace',()=>{const keep=gKeep();keep.gFile=id;S=Object.assign(blank(),d);S.settings=Object.assign(blank().settings,S.settings,keep);save(true);render();toast('Restored from Drive')});
+  }catch(e){toast(e.message)}
+}
+function driveCard(){
+  const st=S.settings;
+  let h=`<div class="card"><div class="row"><b class="sp">Google Drive sync</b>${st.gOn?'<span class="pill ac">On</span>':''}</div>`;
+  if(!st.gcid)return h+`<div class="sub">One-time setup: paste your Google client ID (ends in .apps.googleusercontent.com).</div><div class="gap"></div><div class="row"><input id="gcid" placeholder="Client ID" autocomplete="off"><button class="btn pri" data-act="gSaveId">Save</button></div></div>`;
+  if(!st.gOn)return h+`<div class="sub">Backs up automatically to <b>overload-backup.json</b> in your Drive.</div><div class="gap"></div><button class="btn pri block" data-act="gConnect">Connect Google Drive</button><button class="btn ghost block sm" data-act="gEditId" style="margin-top:6px">Change client ID</button>${G.err?`<div class="muted-note" style="color:var(--amb)">${esc(G.err)}</div>`:''}</div>`;
+  h+=`<div class="sub">Auto-saves to <b>overload-backup.json</b> after workouts, weigh-ins and edits. ${st.gLast?`Last synced ${new Date(st.gLast).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}.`:'Not synced yet.'}</div>`;
+  if(G.err)h+=`<div class="muted-note" style="color:var(--amb)">${esc(G.err)}</div>`;
+  h+=`<div class="gap"></div><div class="row"><button class="btn sp" data-act="gSyncNow">${G.busy?'Syncing…':'Sync now'}</button><button class="btn sp" data-act="gRestore">Restore from Drive</button></div><button class="btn ghost block sm danger" data-act="gOff" style="margin-top:6px">Disconnect</button></div>`;
+  return h;
+}
+
 /* ================= boot ================= */
 if(active())UI.tab='today';
 render();
+gBoot();if(S.settings.gOn&&gReady())setTimeout(gSync,2500);
+addEventListener('online',()=>{if(S.settings.gOn&&gReady())gSync()});
 if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
