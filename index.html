@@ -9,7 +9,7 @@
 <link rel="icon" href="icon-192.png">
 <title>Overload</title>
 <style>
-:root{--bg:#0b0b0d;--s1:#141418;--s2:#1c1c22;--s3:#24242c;--bd:#26262e;--tx:#ededf2;--mu:#8b8b98;--dim:#5a5a66;--ac:#c8ff4d;--acd:rgba(200,255,77,.12);--red:#ff6161;--amb:#ffb547;--r:16px}
+:root{--bg:#0b0b0d;--s1:#141418;--s2:#1c1c22;--s3:#24242c;--bd:#26262e;--tx:#ededf2;--mu:#8b8b98;--dim:#5a5a66;--ac:#f2f2f5;--acd:rgba(255,255,255,.08);--pr:#ffc94d;--red:#ff6161;--amb:#ffb547;--r:16px}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,Roboto,"Segoe UI",sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
 body{padding:env(safe-area-inset-top) 0 calc(84px + env(safe-area-inset-bottom));min-height:100vh;overscroll-behavior-y:none}
@@ -57,13 +57,13 @@ nav svg{width:23px;height:23px}
 .mgrid{display:flex;flex-wrap:wrap;gap:7px}
 .mchip{padding:8px 12px;border-radius:99px;border:1px solid var(--bd);font-size:13px;color:var(--mu);font-weight:600;background:var(--s2)}
 .mchip.p{background:var(--ac);color:#0b0b0d;border-color:var(--ac)}
-.mchip.s{background:var(--acd);color:var(--ac);border-color:rgba(200,255,77,.5)}
+.mchip.s{background:var(--acd);color:var(--ac);border-color:rgba(255,255,255,.45)}
 /* session */
 .en{font-weight:700;font-size:16.5px}
 .last{font-size:12.5px;color:var(--mu);margin-top:8px}
 .sug{font-size:13px;margin-top:6px;padding:8px 10px;border-radius:10px;background:var(--s2);color:var(--mu);display:flex;gap:7px;align-items:flex-start}
 .sug svg{width:15px;height:15px;flex:none;margin-top:1px}
-.sug.up{background:var(--acd);color:var(--ac)}
+.sug.up{background:rgba(255,255,255,.09);color:var(--tx)}
 .sug.down,.sug.stall{background:rgba(255,181,71,.1);color:var(--amb)}
 .setrow{display:grid;grid-template-columns:22px 1fr 1fr 58px 44px;gap:6px;align-items:center;margin-top:6px}
 .setrow.h{margin-top:12px;font-size:10.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.07em;font-weight:700;text-align:center}
@@ -73,13 +73,13 @@ nav svg{width:23px;height:23px}
 .chk{width:44px;height:44px;border-radius:11px;background:var(--s2);border:1px solid var(--bd);display:grid;place-items:center;color:var(--dim)}
 .chk svg{width:20px;height:20px}
 .chk.on{background:var(--ac);color:#0b0b0d;border-color:var(--ac)}
-.setrow.done input,.setrow.done select{background:var(--acd);border-color:transparent;color:var(--ac)}
+.setrow.done input,.setrow.done select{background:rgba(255,255,255,.1);border-color:transparent;color:#fff}
 .shead{position:sticky;top:0;z-index:5;background:linear-gradient(var(--bg) 80%,transparent);padding:4px 0 10px;margin:0 -2px}
 /* week */
 .wkhead{display:flex;align-items:center;gap:6px;margin:14px 0 12px}
 .wkhead h1{margin:0;font-size:22px;flex:1;text-align:center}
 .day{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:var(--r);background:var(--s1);border:1px solid var(--bd);margin-bottom:8px;min-height:62px;transition:background .15s,border-color .15s}
-.day.today{border-color:rgba(200,255,77,.55)}
+.day.today{border-color:rgba(255,255,255,.45)}
 .day.over{background:var(--acd);border-color:var(--ac)}
 .day .dl{width:40px;flex:none;text-align:center}
 .dl b{display:block;font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.06em}
@@ -87,7 +87,7 @@ nav svg{width:23px;height:23px}
 .day.today .dl b,.day.today .dl span{color:var(--ac)}
 .chips{flex:1;display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-height:38px}
 .chip{padding:9px 13px;border-radius:11px;background:var(--s3);border:1px solid #33333d;font-weight:650;font-size:14px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
-.chip.done{background:var(--acd);color:var(--ac);border-color:transparent;touch-action:auto;cursor:pointer;display:inline-flex;gap:5px;align-items:center}
+.chip.done{background:rgba(255,255,255,.1);color:var(--tx);border-color:transparent;touch-action:auto;cursor:pointer;display:inline-flex;gap:5px;align-items:center}
 .chip.done svg{width:14px;height:14px}
 .chip.missed{opacity:.45}
 .chip.dragging{opacity:.25}
@@ -109,7 +109,7 @@ nav svg{width:23px;height:23px}
 .stat{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:12px}
 .stat b{display:block;font-size:20px;font-weight:750;letter-spacing:-.01em}
 .stat span{font-size:10.5px;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;font-weight:650}
-.stat b.up{color:var(--ac)}.stat b.dn{color:var(--amb)}
+.stat b.up{color:var(--pr)}.stat b.dn{color:var(--amb)}
 /* chart */
 .chart{width:100%;height:auto;display:block}
 .chart .g{stroke:#24242c;stroke-width:1}
@@ -122,7 +122,7 @@ nav svg{width:23px;height:23px}
 .empty{padding:28px 10px;text-align:center;color:var(--dim);font-size:14px}
 .list .it{display:flex;align-items:center;gap:10px;padding:12px 2px;border-bottom:1px solid var(--bd)}
 .list .it:last-child{border-bottom:0}
-.pr{color:var(--ac);font-size:11px;font-weight:800;letter-spacing:.06em}
+.pr{color:var(--pr);font-size:11px;font-weight:800;letter-spacing:.06em}
 /* sheets */
 .sheet-wrap{position:fixed;inset:0;z-index:50}
 .sheet-bg{position:absolute;inset:0;background:rgba(0,0,0,.62);opacity:0;transition:opacity .2s}
@@ -151,10 +151,15 @@ nav svg{width:23px;height:23px}
 #timer.end{border-color:var(--ac)}#timer.end .t{color:var(--ac)}
 #toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translate(-50%,-20px);background:var(--s3);border:1px solid #3a3a45;padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;opacity:0;transition:.2s;z-index:80;pointer-events:none;max-width:90vw;text-align:center}
 #toast.on{opacity:1;transform:translate(-50%,0)}
-.hero{background:linear-gradient(160deg,#1a1d12,var(--s1) 60%);border-color:#2c3320}
+.hero{background:linear-gradient(160deg,#1f1f25,var(--s1) 65%);border-color:#30303a}
 .muted-note{font-size:12.5px;color:var(--dim);margin-top:8px;line-height:1.5}
 .steps li{margin:6px 0;color:var(--mu)}
 .steps b{color:var(--tx)}
+.exnote{font-size:12.5px;color:var(--mu);margin-top:6px;padding-left:9px;border-left:2px solid #3a3a45;white-space:pre-wrap}
+textarea{font:inherit;color:var(--tx);background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:11px 12px;width:100%;outline:none;resize:vertical;min-height:72px}
+textarea:focus{border-color:var(--ac)}
+.chip.cardio{background:none;border:1px dashed #44444f;color:var(--mu);font-weight:600;font-size:13px;touch-action:auto;cursor:pointer;padding:8px 11px}
+.tchips{display:flex;flex-wrap:wrap;gap:7px}
 </style>
 </head>
 <body>
@@ -174,7 +179,7 @@ nav svg{width:23px;height:23px}
 const KEY='overload.v1';
 const MUSCLES=['Chest','Lats','Upper Back','Front Delts','Side Delts','Rear Delts','Biceps','Triceps','Forearms','Abs','Quads','Hamstrings','Glutes','Adductors','Calves','Lower Back'];
 const DOW=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-function blank(){return{v:1,exercises:[],templates:[],basePlan:[[],[],[],[],[],[],[]],weeks:{},sessions:[],bw:{},settings:{rest:120},lastBackup:null}}
+function blank(){return{v:1,exercises:[],templates:[],basePlan:[[],[],[],[],[],[],[]],weeks:{},sessions:[],cardio:[],bw:{},settings:{rest:120},lastBackup:null}}
 let S;
 try{S=JSON.parse(localStorage.getItem(KEY))||blank()}catch(e){S=blank()}
 S=Object.assign(blank(),S);S.settings=Object.assign(blank().settings,S.settings);
@@ -317,7 +322,8 @@ function vToday(){
   if(left.length)left.forEach(tid=>{const tp=tpl(tid);if(!tp)return;h+=`<div class="card hero"><div class="row"><div class="sp"><h3>${esc(tp.name)}</h3><div class="sub">${pl(tp.items.length,'exercise')} · ${pl(tp.items.reduce((a,x)=>a+(+x.sets||0),0),'set')}</div><div class="sub" style="margin-top:4px">${esc(tplMuscles(tp))}</div></div><button class="btn pri" data-act="start" data-v="${tid}">Start</button></div></div>`});
   else h+=`<div class="card"><div class="sub">${doneToday.length?'Done for today. Nice work.':'Nothing planned today.'}</div></div>`;
   doneToday.forEach(s=>h+=sessRow(s));
-  h+=`<button class="btn line block" data-act="startPick" style="margin-top:4px">Start a different workout</button>`;
+  S.cardio.filter(c=>c.date===t).forEach(c=>h+=`<div class="card tap" data-act="editCardio" data-v="${c.id}"><div class="row"><div class="sp"><b>${esc(c.type)}</b><div class="sub">Cardio · ${c.min} min${c.dist?` · ${fmtW(c.dist)} mi`:''}${c.effort?` · ${c.effort}`:''}</div></div><span class="dim">${IC.right}</span></div></div>`);
+  h+=`<div class="row" style="margin-top:4px;gap:8px"><button class="btn line sp" data-act="startPick">Start a workout</button><button class="btn line sp" data-act="logCardio">Log cardio</button></div>`;
   const recent=S.sessions.filter(s=>s.finishedAt&&s.date!==t).sort((a,b)=>b.startedAt-a.startedAt).slice(0,5);
   if(recent.length){h+=`<h2>Recent</h2>`;recent.forEach(s=>h+=sessRow(s))}
   return h;
@@ -346,6 +352,7 @@ function entryHTML(s,ei,o){
   const en=s.entries[ei],e=ex(en.exId),sg=suggest(en.exId,en,s.id);
   const ph=sg.reps||[];const D=`data-s="${s.id}" data-e="${ei}"`;
   let h=`<div class="card"><div class="row"><div class="sp"><div class="en">${esc(e?e.name:'Deleted exercise')}</div><div class="sub">${en.sets} × ${en.repMin}–${en.repMax} reps @ ${en.rir} RIR</div></div><button class="ib" data-act="entMenu" ${D}>${IC.dots}</button></div>`;
+  if(e&&e.notes)h+=`<div class="exnote">${esc(e.notes)}</div>`;
   if(o.live){
     if(sg.last)h+=`<div class="last">Last (${fmtD(sg.lastDate,{month:'short',day:'numeric'})}): ${esc(sg.last)}</div>`;
     h+=`<div class="sug ${sg.kind}">${sg.kind==='up'?IC.up:sg.kind==='down'?IC.warn:IC.eq}<span>${esc(sg.text)}</span></div>`;
@@ -398,6 +405,7 @@ function vWeek(){
     sess.forEach(s=>{const i=left.findIndex(x=>x.tid===s.templateId);if(i>-1)left.splice(i,1)});
     let chips=sess.map(s=>`<button class="chip done" data-act="openSess" data-v="${s.id}">${IC.check}${esc(s.name)}</button>`).join('');
     chips+=left.map(({tid,idx})=>{const tp=tpl(tid);if(!tp)return'';const missed=!def&&date<t;return `<div class="chip ${missed?'missed':''}" data-drag="1" data-tid="${tid}" data-day="${d}" data-idx="${idx}">${esc(tp.name)}</div>`}).join('');
+    if(!def)chips+=S.cardio.filter(c=>c.date===date).map(c=>`<button class="chip cardio" data-act="editCardio" data-v="${c.id}">${cardioLabel(c)}</button>`).join('');
     if(!chips)chips=`<span class="rest">Rest</span>`;
     h+=`<div class="day ${isT?'today':''}" data-dropday="${d}"><div class="dl"><b>${DOW[d]}</b>${def?'':`<span>${parse(date).getDate()}</span>`}</div><div class="chips">${chips}</div><button class="add" data-act="dayAdd" data-v="${d}">+</button></div>`;
   }
@@ -417,6 +425,15 @@ function vWeek(){
       h+=`<div class="vol"><span>${m}</span><div class="track"><div class="pl" style="width:${pl/max*100}%"></div><div class="dn" style="width:${dn/max*100}%"></div><div class="mk" style="left:${10/max*100}%"></div><div class="mk" style="left:${20/max*100}%"></div></div><span class="v">${r1(dn)}<small>/${r1(pl)}</small></span></div>`});
     const tot=ms.reduce((a,m)=>a+(done[m]||0),0),ptot=Object.values(prev).reduce((a,b)=>a+b,0);
     h+=`<div class="muted-note">Primary muscle = 1 set, secondary = ½. Last week: ${r1(ptot)} muscle-sets · this week: ${r1(tot)}.</div></div>`;
+  }
+  const cw=cardioWeek(wk),cp=cardioWeek(addDays(wk,-7));
+  h+=`<h2>Cardio</h2>`;
+  if(!cw.length)h+=`<div class="card"><div class="row"><div class="sp sub">No cardio logged this week${cp.length?` · last week ${cp.reduce((a,c)=>a+c.min,0)} min`:''}</div><button class="btn sm" data-act="logCardio">Log</button></div></div>`;
+  else{
+    const tot=cw.reduce((a,c)=>a+c.min,0),ptot=cp.reduce((a,c)=>a+c.min,0),by={};
+    cw.forEach(c=>{by[c.type]=by[c.type]||{min:0,dist:0,n:0};by[c.type].min+=c.min;by[c.type].dist+=+c.dist||0;by[c.type].n++});
+    h+=`<div class="card"><div class="row"><div class="sp"><div style="font-size:26px;font-weight:750;letter-spacing:-.02em">${tot} <span class="sub" style="font-size:14px;font-weight:600">min</span></div><div class="sub">${pl(cw.length,'session')} · last week ${ptot} min</div></div><button class="btn sm" data-act="logCardio">Log</button></div>
+    <div class="list" style="margin-top:6px">${Object.entries(by).sort((a,b)=>b[1].min-a[1].min).map(([t,v])=>`<div class="it"><div class="sp">${esc(t)}<span class="dim"> ×${v.n}</span></div><span class="sub">${v.dist?fmtW(r1(v.dist))+' mi · ':''}</span><b>${v.min}m</b></div>`).join('')}</div></div>`;
   }
   const ws=S.sessions.filter(s=>s.finishedAt&&s.date>=wk&&s.date<=addDays(wk,6)).sort((a,b)=>a.date<b.date?-1:1);
   if(ws.length){h+=`<h2>Logged this week</h2>`;ws.forEach(s=>h+=sessRow(s))}
@@ -486,7 +503,7 @@ function vLib(){
     h+=driveCard();
     h+=`<div class="card"><b>Backup</b><div class="sub">Your data lives on this phone only. Export a backup now and then and keep it in Google Drive.${S.lastBackup?` Last backup: ${fmtD(dk(S.lastBackup))}.`:' No backup yet.'}</div><div class="gap"></div><div class="row"><button class="btn sp" data-act="export">Export backup</button><button class="btn sp" data-act="import">Import backup</button></div><input type="file" id="impF" accept=".json,application/json" hidden></div>`;
     h+=`<div class="card"><div class="row"><div class="sp"><b>Erase everything</b><div class="sub">Can't be undone</div></div><button class="btn sm danger" data-act="wipe">Erase</button></div></div>`;
-    h+=`<div class="muted-note" style="text-align:center">Overload v1.1 · ${pl(S.sessions.filter(s=>s.finishedAt).length,'workout')} logged</div>`;
+    h+=`<div class="muted-note" style="text-align:center">Overload v1.2 · ${pl(S.sessions.filter(s=>s.finishedAt).length,'workout')} logged</div>`;
   }
   return h;
 }
@@ -501,7 +518,7 @@ function chart(series,opt){
   let y0=Math.min(...all.map(p=>p[1])),y1=Math.max(...all.map(p=>p[1]));
   const pd=(y1-y0)*.18||Math.max(1,y1*.04);y0-=pd;y1+=pd;
   const X=x=>P.l+(x-x0)/(x1-x0)*(W-P.l-P.r),Y=y=>P.t+(1-(y-y0)/(y1-y0))*(H-P.t-P.b);
-  let g=`<defs><linearGradient id="ga" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c8ff4d" stop-opacity=".22"/><stop offset="1" stop-color="#c8ff4d" stop-opacity="0"/></linearGradient></defs>`;
+  let g=`<defs><linearGradient id="ga" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".14"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient></defs>`;
   for(let i=0;i<4;i++){const v=y0+(y1-y0)*(i+.5)/4,yy=Y(v);g+=`<line class="g" x1="${P.l}" x2="${W-P.r}" y1="${yy}" y2="${yy}"/><text class="lbl" x="${P.l-6}" y="${yy+3}" text-anchor="end">${Math.round(v)}</text>`}
   const xl=[x0,(x0+x1)/2,x1];xl.forEach((x,i)=>g+=`<text class="lbl" x="${X(x)}" y="${H-6}" text-anchor="${['start','middle','end'][i]}">${new Date(x).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</text>`);
   series.forEach(s=>{
@@ -549,11 +566,12 @@ function pickExercise(fn){
 /* ---------- exercise editor ---------- */
 function editExercise(id,after){
   const o=id?ex(id):null;
-  const d={name:o?o.name:'',primary:o?(o.primary||[]).slice():[],secondary:o?(o.secondary||[]).slice():[],inc:o?o.inc||5:5};
+  const d={name:o?o.name:'',primary:o?(o.primary||[]).slice():[],secondary:o?(o.secondary||[]).slice():[],inc:o?o.inc||5:5,notes:o?o.notes||'':''};
   sheet(`<h3>${o?'Edit':'New'} exercise</h3>
   <label class="f">Name</label><input data-k="name" value="${esc(d.name)}" placeholder="e.g. Incline DB Press">
   <label class="f">Muscles — tap once for primary (1 set), twice for secondary (½ set)</label><div class="mgrid" data-k="mg"></div>
   <label class="f">Weight jump when you hit the top of the range (lb)</label><div class="seg" data-k="incs">${[2.5,5,10].map(v=>`<button data-v="${v}">+${v}</button>`).join('')}<input data-k="inc" inputmode="decimal" value="${fmtW(d.inc)}" style="max-width:76px;padding:6px;text-align:center;border-radius:9px"></div>
+  <label class="f">Notes — seat height, grip, cues</label><textarea data-k="notes" placeholder="e.g. Seat 4, pins at 6, elbows tucked">${esc(d.notes)}</textarea>
   <div class="gap"></div><div class="gap"></div><button class="btn pri block" data-k="save">Save</button>
   ${o?'<div class="gap"></div><button class="btn ghost block danger" data-k="del">Delete exercise</button>':''}`,(el,close)=>{
     const mg=el.querySelector('[data-k=mg]');
@@ -569,7 +587,7 @@ function editExercise(id,after){
       const name=el.querySelector('[data-k=name]').value.trim();
       if(!name)return toast('Give it a name');
       if(!d.primary.length)return toast('Tag at least one primary muscle');
-      const rec={name,primary:d.primary,secondary:d.secondary,inc:+inc.value||5};
+      const rec={name,primary:d.primary,secondary:d.secondary,inc:+inc.value||5,notes:el.querySelector('[data-k=notes]').value.trim()};
       let nid=id;
       if(o)Object.assign(o,rec);else{nid=uid();S.exercises.push({id:nid,...rec})}
       save();close();rerender();after&&after(nid);
@@ -610,6 +628,57 @@ function editTemplate(id){
   },true);
 }
 
+/* ---------- swap + notes ---------- */
+function swapEntry(s,ei,nid){
+  const en=s.entries[ei];if(nid===en.exId)return;
+  const done=en.log.filter(x=>x.done),left=en.log.length-done.length;
+  const tg={sets:Math.max(1,left||en.sets),repMin:en.repMin,repMax:en.repMax,rir:en.rir};
+  const ne=makeEntry(nid,tg,s.id);
+  if(s.finishedAt)ne.log.forEach(x=>x.w='');
+  if(done.length){en.log=done;en.sets=done.length;s.entries.splice(ei+1,0,ne)} // keep sets already done on the old lift
+  else s.entries.splice(ei,1,ne);
+  save();rerender();toast('Swapped to '+ex(nid).name);
+}
+function editNotes(exId){
+  const e=ex(exId);if(!e)return;
+  sheet(`<h3>${esc(e.name)}</h3><label class="f">Notes — seat height, grip, cues</label><textarea data-k="t" placeholder="e.g. Seat 4, pins at 6, elbows tucked">${esc(e.notes||'')}</textarea><div class="gap"></div><button class="btn pri block" data-k="ok">Save</button>`,(el,close)=>{
+    const t=el.querySelector('[data-k=t]');setTimeout(()=>t.focus(),280);
+    el.querySelector('[data-k=ok]').onclick=()=>{e.notes=t.value.trim();save();close();rerender()};
+  });
+}
+
+/* ---------- cardio ---------- */
+const CARDIO_TYPES=['Incline walk','Stairmaster','Run','Bike','Row','Elliptical','Walk'];
+const EFFORT=['Easy','Moderate','Hard'];
+function cardioTypes(){const seen=[];S.cardio.slice().reverse().forEach(c=>{if(!seen.includes(c.type))seen.push(c.type)});CARDIO_TYPES.forEach(t=>{if(!seen.includes(t))seen.push(t)});return seen.slice(0,10)}
+function cardioLabel(c){return `${esc(c.type)} · ${c.min}m${c.dist?` · ${fmtW(c.dist)} mi`:''}`}
+function editCardio(id,date){
+  const o=id?S.cardio.find(c=>c.id===id):null;
+  const d=o?{...o}:{type:'',date:date||today(),min:'',dist:'',effort:''};
+  sheet(`<h3>${o?'Edit':'Log'} cardio</h3>
+  <label class="f">Type</label><div class="tchips" data-k="types"></div><input data-k="type" value="${esc(d.type)}" placeholder="Or type your own" style="margin-top:8px">
+  <div class="row" style="gap:8px"><div class="sp"><label class="f">Minutes</label><input data-k="min" inputmode="numeric" value="${esc(d.min)}" placeholder="30" style="text-align:center;font-weight:700;font-size:17px"></div><div class="sp"><label class="f">Distance (mi, optional)</label><input data-k="dist" inputmode="decimal" value="${esc(d.dist)}" placeholder="–" style="text-align:center;font-weight:700;font-size:17px"></div></div>
+  <label class="f">Effort (optional)</label><div class="seg" data-k="eff">${EFFORT.map(x=>`<button data-v="${x}">${x}</button>`).join('')}</div>
+  <label class="f">Date</label><input type="date" data-k="date" value="${d.date}">
+  <div class="gap"></div><div class="gap"></div><button class="btn pri block" data-k="save">Save</button>
+  ${o?'<div class="gap"></div><button class="btn ghost block danger" data-k="del">Delete</button>':''}`,(el,close)=>{
+    const q=k=>el.querySelector(`[data-k=${k}]`),type=q('type');
+    const paintT=()=>{q('types').innerHTML=cardioTypes().map(t=>`<button class="mchip ${type.value===t?'p':''}" data-t="${esc(t)}">${esc(t)}</button>`).join('');
+      q('types').querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{type.value=b.dataset.t;paintT()})};paintT();type.oninput=paintT;
+    const paintE=()=>q('eff').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===d.effort));paintE();
+    q('eff').querySelectorAll('button').forEach(b=>b.onclick=()=>{d.effort=d.effort===b.dataset.v?'':b.dataset.v;paintE()});
+    q('save').onclick=()=>{
+      const t=type.value.trim(),m=parseInt(q('min').value),di=parseFloat(q('dist').value.replace(',','.'));
+      if(!t)return toast('Pick a type');if(!(m>0))return toast('Enter minutes');
+      const rec={type:t,min:m,dist:di>0?Math.round(di*100)/100:'',effort:d.effort,date:q('date').value||today()};
+      if(o)Object.assign(o,rec);else S.cardio.push({id:uid(),...rec});
+      save();close();rerender();gTouch();
+    };
+    if(o)q('del').onclick=()=>{close();confirmSheet('Delete this cardio session?','Delete',()=>{S.cardio=S.cardio.filter(c=>c!==o);save();rerender()})};
+  });
+}
+function cardioWeek(wk){const end=addDays(wk,6);return S.cardio.filter(c=>c.date>=wk&&c.date<=end)}
+
 /* ---------- past session screen ---------- */
 function openSession(id){
   const s=getSess(id);if(!s)return;
@@ -645,7 +714,7 @@ const A={
     <div class="tgrid">${[['sets','Sets'],['repMin','Min reps'],['repMax','Max reps'],['rir','RIR']].map(([f,l])=>`<div><label>${l}</label><input inputmode="numeric" data-tf="${f}" value="${en[f]}"></div>`).join('')}</div>
     <div class="gap"></div><button class="btn pri block" data-k="apply">Update target</button><div class="gap"></div>
     ${ei>0?'<button class="opt" data-k="up">Move up</button>':''}${ei<s.entries.length-1?'<button class="opt" data-k="dn">Move down</button>':''}
-    <button class="opt" data-k="hist">See progress</button><button class="opt danger" data-k="rm">Remove exercise</button>`,(el,close)=>{
+    <button class="opt" data-k="swap"><span class="sp">Swap exercise<div class="sub">Just for this workout — your template stays the same</div></span></button><button class="opt" data-k="note">${(ex(en.exId)||{}).notes?'Edit notes':'Add notes'}</button><button class="opt" data-k="hist">See progress</button><button class="opt danger" data-k="rm">Remove exercise</button>`,(el,close)=>{
       const q=k=>el.querySelector(`[data-k=${k}]`);
       q('apply').onclick=()=>{const v={};el.querySelectorAll('[data-tf]').forEach(i=>v[i.dataset.tf]=+i.value||0);
         v.sets=Math.max(1,v.sets);v.repMin=Math.max(1,v.repMin);v.repMax=Math.max(v.repMin,v.repMax);v.rir=Math.min(5,v.rir);
@@ -654,11 +723,15 @@ const A={
         Object.assign(en,v);save();close();rerender()};
       q('up')&&(q('up').onclick=()=>{[s.entries[ei-1],s.entries[ei]]=[s.entries[ei],s.entries[ei-1]];save();close();rerender()});
       q('dn')&&(q('dn').onclick=()=>{[s.entries[ei+1],s.entries[ei]]=[s.entries[ei],s.entries[ei+1]];save();close();rerender()});
+      q('swap').onclick=()=>{close();pickExercise(nid=>swapEntry(s,ei,nid))};
+      q('note').onclick=()=>{close();editNotes(en.exId)};
       q('hist').onclick=()=>{close();if(!history(en.exId).length)return toast('No finished sessions for this lift yet');UI.prog=en.exId;UI.tab='prog';screen&&screen.close();render();scrollTo(0,0)};
       q('rm').onclick=()=>{close();confirmSheet('Remove this exercise?','Remove',()=>{s.entries.splice(ei,1);save();rerender()})};
     });
   },
   openSess:d=>openSession(d.v),
+  logCardio:d=>editCardio(null,d.v||null),
+  editCardio:d=>editCardio(d.v),
   closeScreen:()=>screen&&screen.close(),
   delSess:d=>confirmSheet('Delete this workout? Its sets leave your history.','Delete',()=>{S.sessions=S.sessions.filter(s=>s.id!==d.v);save();screen&&screen.close()}),
   // week
@@ -666,7 +739,12 @@ const A={
   wkMode:d=>{UI.wkMode=d.v;render();scrollTo(0,0)},
   wkReset:()=>{delete S.weeks[UI.wk];save();render()},
   wkMakeDefault:()=>confirmSheet('Use this week as your default week?','Make default',()=>{S.basePlan=S.weeks[UI.wk].map(a=>a.slice());delete S.weeks[UI.wk];save();render();toast('Default week updated')},false),
-  dayAdd:d=>pickTemplate(`Add to ${DOW[+d.v]}`,tid=>{if(!tid)return;editablePlan(UI.wkMode,UI.wk)[+d.v].push(tid);save();render()}),
+  dayAdd:d=>{
+    if(UI.wkMode==='default')return pickTemplate(`Add to ${DOW[+d.v]}`,tid=>{if(!tid)return;S.basePlan[+d.v].push(tid);save();render()});
+    const date=addDays(UI.wk,+d.v);
+    sheet(`<h3>${fmtD(date)}</h3><div class="gap"></div>${S.templates.map(t=>`<button class="opt" data-k="${t.id}"><span class="sp">${esc(t.name)}<div class="sub">Plan this workout</div></span></button>`).join('')}<button class="opt" data-k="__cardio"><span class="sp">Log cardio<div class="sub">Walk, stairs, run, bike…</div></span></button>`,(el,close)=>{
+      el.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{close();if(b.dataset.k==='__cardio')return editCardio(null,date);editablePlan('week',UI.wk)[+d.v].push(b.dataset.k);save();render()})});
+  },
   // progress
   metric:d=>{UI.metric=d.v;render()},
   // weight
@@ -725,7 +803,7 @@ function finishSession(){
     const sets=s.entries.reduce((a,en)=>a+en.log.length,0),mins=Math.round((s.finishedAt-s.startedAt)/60000);
     const vol={};s.entries.forEach(en=>addVol(vol,en.exId,en.log.length));
     sheet(`<h3>Workout done</h3><div class="stats"><div class="stat"><span>Time</span><b>${mins}m</b></div><div class="stat"><span>Sets</span><b>${sets}</b></div><div class="stat"><span>PRs</span><b class="${s.prs.length?'up':''}">${s.prs.length}</b></div></div>
-    ${s.prs.length?`<div class="sug up">${IC.up}<span>New est. 1RM on ${esc(s.prs.map(id=>ex(id).name).join(', '))}</span></div>`:''}
+    ${s.prs.length?`<div class="sug up" style="color:var(--pr);background:rgba(255,201,77,.1)">${IC.up}<span>New est. 1RM on ${esc(s.prs.map(id=>ex(id).name).join(', '))}</span></div>`:''}
     <div class="sub" style="margin-top:12px">${Object.entries(vol).sort((a,b)=>b[1]-a[1]).map(([m,v])=>`${m} ${r1(v)}`).join(' · ')}</div>
     <div class="gap"></div><div class="gap"></div><button class="btn pri block" data-k="ok">Close</button>`,(el,close)=>el.querySelector('[data-k=ok]').onclick=close);
   };
