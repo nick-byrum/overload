@@ -160,6 +160,15 @@ textarea{font:inherit;color:var(--tx);background:var(--s2);border:1px solid var(
 textarea:focus{border-color:var(--ac)}
 .chip.cardio{background:none;border:1px dashed #44444f;color:var(--mu);font-weight:600;font-size:13px;touch-action:auto;cursor:pointer;padding:8px 11px}
 .tchips{display:flex;flex-wrap:wrap;gap:7px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:4px}
+.cal-h{text-align:center;font-size:11px;color:var(--dim);font-weight:700;padding-bottom:2px}
+.cal-d{aspect-ratio:1;border-radius:12px;background:var(--s1);border:1px solid var(--bd);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-weight:650;font-size:14px}
+.cal-d.lift{background:var(--s3);border-color:#3a3a45}
+.cal-d.t{border-color:#fff}
+.cal-d.fut{opacity:.45}
+.cal-d i{display:flex;gap:3px;height:6px}
+.cal-d b{width:6px;height:6px;border-radius:50%;display:block}
+.cal-d .dl{background:#fff}.cal-d .dc{border:1.5px solid var(--mu)}.cal-d .dp{background:var(--pr)}
 </style>
 </head>
 <body>
@@ -204,7 +213,10 @@ const dowOf=k=>(parse(k).getDay()+6)%7;
 const fmtD=(k,o)=>parse(k).toLocaleDateString(undefined,o||{weekday:'short',month:'short',day:'numeric'});
 const fmtW=w=>{w=+w;return Number.isInteger(w)?String(w):(Math.round(w*10)/10).toString()};
 const r1=x=>Math.round(x*10)/10;
-const e1=(w,r,rir)=>(+w)*(1+((+r||0)+(+rir||0))/30);
+// Reps to failure = reps done + reps in reserve (RIR-based RPE, Zourdos 2016; lifters are typically within ~1 rep).
+const rtf=(r,rir)=>(+r||0)+(+rir||0);
+// Est. 1RM = mean of Epley (1985) and Brzycki (1993). Both are most accurate at <=10 reps to failure (LeSuer 1997; Reynolds 2006).
+const e1=(w,r,rir)=>{w=+w;const n=rtf(r,rir);if(n<=1)return w;const ep=w*(1+n/30),br=n<37?w*36/(37-n):ep;return(ep+br)/2};
 const ex=id=>S.exercises.find(e=>e.id===id);
 const exList=()=>S.exercises.filter(e=>!e.archived).sort((a,b)=>a.name.localeCompare(b.name));
 const tpl=id=>S.templates.find(t=>t.id===id);
@@ -243,7 +255,7 @@ function history(exId,excludeId){
   }
   return out.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.t-b.t);
 }
-const bestE1=done=>Math.max(...done.map(x=>e1(x.w,x.r,x.rir)));
+const bestE1=done=>{const ok=done.filter(x=>rtf(x.r,x.rir)<=12);return Math.max(...(ok.length?ok:done).map(x=>e1(x.w,x.r,x.rir)))};
 const topSet=done=>done.reduce((b,x)=>(+x.w>+b.w||(+x.w===+b.w&&+x.r>+b.r))?x:b,done[0]);
 const tonnage=done=>done.reduce((a,x)=>a+(+x.w)*(+x.r),0);
 
@@ -256,9 +268,14 @@ function suggest(exId,tg,excludeId){
   const top=Math.max(...last.done.map(x=>+x.w));
   const atTop=last.done.filter(x=>+x.w===top);
   const res={last:last.done.map(x=>fmtW(x.w)+'×'+x.r).join(', '),lastDate:last.date,reps:last.entry.log.filter(x=>x.done).map(x=>x.r)};
+  // Double progression. ACSM (2009): raise load 2–10% once the current load is done for 1–2 reps over the target.
   const hitAll=atTop.length>=tg.sets&&atTop.every(x=>+x.r>=tg.repMax);
+  const easyEnough=atTop.every(x=>+x.rir>=tg.rir-1); // RIR estimates are ~±1 rep accurate
   const bestReps=Math.max(...atTop.map(x=>+x.r));
-  if(hitAll)Object.assign(res,{kind:'up',w:top+inc,text:`Hit ${tg.repMax} on every set — go to ${fmtW(top+inc)} lb and aim for ${tg.repMin}+`});
+  let jump=inc;if(top>0)while(jump<top*0.02)jump+=inc; // at least 2%
+  const pct=top>0?jump/top*100:0;
+  if(hitAll&&!easyEnough)Object.assign(res,{kind:'hold',w:top,text:`Hit ${tg.repMax} but closer to failure than your ${tg.rir} RIR target — repeat ${fmtW(top)} lb until it feels like ${tg.rir} RIR`});
+  else if(hitAll)Object.assign(res,{kind:'up',w:top+jump,text:`Hit ${tg.repMax} on every set — go to ${fmtW(top+jump)} lb (+${Math.round(pct)}%) and aim for ${tg.repMin}+${pct>10?'. That jump is over 10%, so expect reps near the bottom of the range':''}`});
   else if(bestReps<tg.repMin)Object.assign(res,{kind:'down',w:top,text:`Under ${tg.repMin} reps last time — stay at ${fmtW(top)} or drop to ${fmtW(Math.max(0,top-inc))} lb`});
   else Object.assign(res,{kind:'hold',w:top,text:`Stay at ${fmtW(top)} lb — beat ${atTop.map(x=>x.r).join(' / ')}`});
   if(h.length>=4&&res.kind!=='up'){
@@ -290,7 +307,7 @@ function plan(wk){return S.weeks[wk]||S.basePlan}
 function editablePlan(mode,wk){if(mode==='default')return S.basePlan;if(!S.weeks[wk])S.weeks[wk]=S.basePlan.map(a=>a.slice());return S.weeks[wk]}
 
 /* ================= ui state ================= */
-const UI={tab:'today',wk:monday(today()),wkMode:'week',prog:null,metric:'e1',bwRange:30,lib:'templates'};
+const UI={tab:'today',wk:monday(today()),wkMode:'week',wkView:'week',day:today(),month:today().slice(0,7),prog:null,metric:'e1',bwRange:30,lib:'templates'};
 let screen=null; // open full-screen session editor
 
 /* ================= render ================= */
@@ -389,13 +406,64 @@ document.addEventListener('input',onField);document.addEventListener('change',on
 
 /* ---------- Week tab ---------- */
 function vWeek(){
+  if(UI.wkMode==='default')return vWeekPlan();
+  const seg=`<div class="seg" style="margin-top:14px">${[['day','Day'],['week','Week'],['month','Month']].map(([k,l])=>`<button data-act="wkView" data-v="${k}" class="${UI.wkView===k?'on':''}">${l}</button>`).join('')}</div>`;
+  return seg+(UI.wkView==='day'?vDay():UI.wkView==='month'?vMonth():vWeekPlan());
+}
+function vDay(){
+  const d=UI.day,t=today();
+  let h=`<div class="wkhead"><button class="ib" data-act="dayNav" data-v="-1">${IC.left}</button><h1>${fmtD(d)}</h1><button class="ib" data-act="dayNav" data-v="1">${IC.right}</button></div>`;
+  h+=`<div class="row" style="justify-content:center;margin:-4px 0 12px">${d===t?'<span class="pill ac">Today</span>':'<button class="pill" data-act="dayNav" data-v="0">Back to today</button>'}</div>`;
+  const ss=S.sessions.filter(s=>s.date===d&&s.finishedAt),cc=S.cardio.filter(c=>c.date===d),bw=S.bw[d];
+  if(!ss.length&&!cc.length){
+    const pl0=plan(monday(d))[dowOf(d)].map(tpl).filter(Boolean);
+    h+=`<div class="card"><div class="empty">${pl0.length?(d<t?'Planned '+esc(pl0.map(x=>x.name).join(', '))+' — not logged':'Planned: '+esc(pl0.map(x=>x.name).join(', '))):'Rest day'}</div></div>`;
+  }
+  const vol={};
+  ss.forEach(s=>{
+    const mins=Math.round((s.finishedAt-s.startedAt)/60000);
+    h+=`<div class="card tap" data-act="openSess" data-v="${s.id}"><div class="row"><div class="sp"><h3>${esc(s.name)}</h3><div class="sub">${mins>0&&mins<400?mins+' min · ':''}${pl(s.entries.reduce((a,en)=>a+doneSets(en).length,0),'set')}${s.prs&&s.prs.length?` · <span class="pr">${s.prs.length} PR</span>`:''}</div></div><span class="dim">${IC.right}</span></div>`;
+    s.entries.forEach(en=>{const dn=doneSets(en);addVol(vol,en.exId,dn.length);if(!dn.length)return;const e=ex(en.exId);
+      h+=`<div style="margin-top:10px"><div style="font-weight:650">${esc(e?e.name:'Deleted exercise')}${s.prs&&s.prs.includes(en.exId)?' <span class="pr">PR</span>':''}</div><div class="sub">${dn.map(x=>fmtW(x.w)+'×'+x.r).join(', ')} <span class="dim">· e1RM ${Math.round(bestE1(dn))}</span></div></div>`});
+    h+=`</div>`;
+  });
+  cc.forEach(c=>h+=`<div class="card tap" data-act="editCardio" data-v="${c.id}"><div class="row"><div class="sp"><b>${esc(c.type)}</b><div class="sub">Cardio · ${c.min} min${c.dist?` · ${fmtW(c.dist)} mi`:''}${c.effort?` · ${c.effort}`:''}</div></div><span class="dim">${IC.right}</span></div></div>`);
+  if(bw!=null)h+=`<div class="card"><div class="row"><span class="sp sub">Bodyweight</span><b>${fmtW(bw)} lb</b></div></div>`;
+  const ms=MUSCLES.filter(m=>vol[m]);
+  if(ms.length)h+=`<h2>Sets per muscle</h2><div class="card"><div class="sub" style="line-height:1.9">${ms.map(m=>`${m} <b style="color:var(--tx)">${r1(vol[m])}</b>`).join(' &nbsp;·&nbsp; ')}</div></div>`;
+  h+=`<div class="row" style="gap:8px;margin-top:6px"><button class="btn line sp" data-act="logCardio" data-v="${d}">Log cardio</button></div>`;
+  return h;
+}
+function vMonth(){
+  const[Y,M]=UI.month.split('-').map(Number),first=new Date(Y,M-1,1),nd=new Date(Y,M,0).getDate(),t=today();
+  const mk=n=>Y+'-'+pad(M)+'-'+pad(n),lo=mk(1),hi=mk(nd);
+  let h=`<div class="wkhead"><button class="ib" data-act="monNav" data-v="-1">${IC.left}</button><h1>${first.toLocaleDateString(undefined,{month:'long',year:'numeric'})}</h1><button class="ib" data-act="monNav" data-v="1">${IC.right}</button></div>`;
+  h+=`<div class="cal">${DOW.map(d=>`<span class="cal-h">${d[0]}</span>`).join('')}`;
+  for(let i=0;i<(first.getDay()+6)%7;i++)h+=`<span></span>`;
+  for(let n=1;n<=nd;n++){const k=mk(n),sN=S.sessions.filter(s=>s.date===k&&s.finishedAt).length,cN=S.cardio.filter(c=>c.date===k).length,pr=S.sessions.some(s=>s.date===k&&s.prs&&s.prs.length);
+    h+=`<button class="cal-d ${k===t?'t':''} ${sN?'lift':''} ${k>t?'fut':''}" data-act="openDay" data-v="${k}"><span>${n}</span><i>${sN?'<b class="dl"></b>':''}${cN?'<b class="dc"></b>':''}${pr?'<b class="dp"></b>':''}</i></button>`}
+  h+=`</div><div class="legend" style="justify-content:center;margin-top:8px"><span><i style="background:#fff;border-radius:50%"></i>Lift</span><span><i style="border:1.5px solid var(--mu);border-radius:50%;background:none"></i>Cardio</span><span><i style="background:var(--pr);border-radius:50%"></i>PR</span></div>`;
+  const ss=S.sessions.filter(s=>s.finishedAt&&s.date>=lo&&s.date<=hi),cc=S.cardio.filter(c=>c.date>=lo&&c.date<=hi);
+  const sets=ss.reduce((a,s)=>a+s.entries.reduce((b,en)=>b+doneSets(en).length,0),0),prs=ss.reduce((a,s)=>a+(s.prs?s.prs.length:0),0);
+  h+=`<div class="stats"><div class="stat"><span>Workouts</span><b>${ss.length}</b></div><div class="stat"><span>Sets</span><b>${sets}</b></div><div class="stat"><span>PRs</span><b class="${prs?'up':''}">${prs}</b></div></div>`;
+  const bws=bwSorted().filter(x=>x[0]>=lo&&x[0]<=hi);
+  h+=`<div class="stats" style="margin-top:0"><div class="stat"><span>Cardio</span><b>${cc.reduce((a,c)=>a+c.min,0)}<small class="sub"> min</small></b></div><div class="stat"><span>Avg weight</span><b>${bws.length?fmtW(r1(bws.reduce((a,x)=>a+x[1],0)/bws.length)):'–'}</b></div><div class="stat"><span>Change</span><b>${bws.length>1?((bws[bws.length-1][1]-bws[0][1])>0?'+':'')+fmtW(r1(bws[bws.length-1][1]-bws[0][1])):'–'}</b></div></div>`;
+  const vol={};ss.forEach(s=>s.entries.forEach(en=>addVol(vol,en.exId,doneSets(en).length)));
+  const ms=MUSCLES.filter(m=>vol[m]);
+  if(ms.length){const span=t>=lo&&t<=hi?parse(t).getDate():nd,wks=Math.max(1,span)/7,max=Math.max(22,...ms.map(m=>vol[m]/wks));
+    h+=`<h2>Avg weekly sets per muscle</h2><div class="card">`;
+    ms.forEach(m=>{const v=vol[m]/wks;h+=`<div class="vol"><span>${m}</span><div class="track"><div class="dn" style="width:${v/max*100}%"></div><div class="mk" style="left:${10/max*100}%"></div><div class="mk" style="left:${20/max*100}%"></div></div><span class="v">${r1(v)}</span></div>`});
+    h+=`</div>`}
+  return h;
+}
+function vWeekPlan(){
   const def=UI.wkMode==='default',wk=UI.wk,t=today(),cur=monday(t)===wk;
   const P=def?S.basePlan:plan(wk);
   let h='';
   if(def)h+=`<div class="wkhead"><button class="ib" data-act="wkMode" data-v="week">${IC.left}</button><h1>Default week</h1><span style="width:36px"></span></div><div class="sub" style="text-align:center;margin:-6px 0 12px">Repeats every week unless you change a specific week</div>`;
   else{
     const end=addDays(wk,6);
-    h+=`<div class="wkhead"><button class="ib" data-act="wkNav" data-v="-1">${IC.left}</button><h1>${fmtD(wk,{month:'short',day:'numeric'})} – ${fmtD(end,parse(end).getMonth()===parse(wk).getMonth()?{day:'numeric'}:{month:'short',day:'numeric'})}</h1><button class="ib" data-act="wkNav" data-v="1">${IC.right}</button></div>`;
+    h+=`<div class="wkhead" style="margin-top:12px"><button class="ib" data-act="wkNav" data-v="-1">${IC.left}</button><h1>${fmtD(wk,{month:'short',day:'numeric'})} – ${fmtD(end,parse(end).getMonth()===parse(wk).getMonth()?{day:'numeric'}:{month:'short',day:'numeric'})}</h1><button class="ib" data-act="wkNav" data-v="1">${IC.right}</button></div>`;
     h+=`<div class="row" style="justify-content:center;margin:-4px 0 12px;flex-wrap:wrap;gap:6px">${cur?'<span class="pill ac">This week</span>':`<button class="pill" data-act="wkNav" data-v="0">Back to this week</button>`}${S.weeks[wk]?`<span class="pill">Custom</span><button class="pill" data-act="wkReset">Reset to default</button>`:''}</div>`;
   }
   for(let d=0;d<7;d++){
@@ -458,7 +526,7 @@ function vProg(){
   const tg=lastTarget(id),sg=suggest(id,tg);
   h+=`<div class="sug ${sg.kind}" style="margin-top:0">${sg.kind==='up'?IC.up:sg.kind==='down'?IC.warn:IC.eq}<span>Next time (${tg.repMin}–${tg.repMax} @ ${tg.rir} RIR): ${esc(sg.text)}</span></div>`;
   if(sg.stall)h+=`<div class="sug stall">${IC.warn}<span>Stalled for 3 sessions</span></div>`;
-  h+=`<div class="muted-note">Est. 1RM = weight × (1 + (reps + RIR) / 30), so progress shows even when your rep range changes.</div>`;
+  h+=`<div class="muted-note">Est. 1RM averages the Epley and Brzycki formulas using reps + RIR, so it stays comparable across rep ranges. Most accurate from sets of ≤10 reps to failure.</div>`;
   h+=`<h2>History · ${hs.length} sessions</h2><div class="card list" style="padding:2px 14px">`;
   let run=0;const prFlags=e1s.map(v=>{const p=v>run+0.01;if(p)run=v;return p});
   hs.slice().reverse().forEach((x,ri)=>{const i=hs.length-1-ri;h+=`<div class="it tap" data-act="openSess" data-v="${x.sess.id}"><div class="sp"><div style="font-weight:650">${x.done.map(s=>fmtW(s.w)+'×'+s.r).join(', ')}</div><div class="sub">${fmtD(x.date)} · e1RM ${Math.round(e1s[i])}${prFlags[i]&&i>0?' · <span class="pr">PR</span>':''}</div></div></div>`});
@@ -503,7 +571,7 @@ function vLib(){
     h+=driveCard();
     h+=`<div class="card"><b>Backup</b><div class="sub">Your data lives on this phone only. Export a backup now and then and keep it in Google Drive.${S.lastBackup?` Last backup: ${fmtD(dk(S.lastBackup))}.`:' No backup yet.'}</div><div class="gap"></div><div class="row"><button class="btn sp" data-act="export">Export backup</button><button class="btn sp" data-act="import">Import backup</button></div><input type="file" id="impF" accept=".json,application/json" hidden></div>`;
     h+=`<div class="card"><div class="row"><div class="sp"><b>Erase everything</b><div class="sub">Can't be undone</div></div><button class="btn sm danger" data-act="wipe">Erase</button></div></div>`;
-    h+=`<div class="muted-note" style="text-align:center">Overload v1.2 · ${pl(S.sessions.filter(s=>s.finishedAt).length,'workout')} logged</div>`;
+    h+=`<div class="muted-note" style="text-align:center">Overload v1.3 · ${pl(S.sessions.filter(s=>s.finishedAt).length,'workout')} logged</div>`;
   }
   return h;
 }
@@ -691,7 +759,7 @@ function openSession(id){
 
 /* ================= actions ================= */
 const A={
-  tab:d=>{UI.tab=d.v;if(d.v==='week'){UI.wkMode='week'}render();scrollTo(0,0)},
+  tab:d=>{UI.tab=d.v;if(d.v==='week'){UI.wkMode='week';UI.wkView='week'}render();scrollTo(0,0)},
   start:d=>startSession(d.v),
   startPick:()=>pickTemplate('Start a workout',startSession,true),
   finish:()=>finishSession(),
@@ -737,6 +805,10 @@ const A={
   // week
   wkNav:d=>{UI.wk=+d.v===0?monday(today()):addDays(UI.wk,7*+d.v);render()},
   wkMode:d=>{UI.wkMode=d.v;render();scrollTo(0,0)},
+  wkView:d=>{UI.wkView=d.v;if(d.v==='day')UI.day=UI.wk<=today()&&today()<=addDays(UI.wk,6)?today():UI.wk;if(d.v==='month')UI.month=(UI.wk<=today()&&today()<=addDays(UI.wk,6)?today():UI.wk).slice(0,7);if(d.v==='week')UI.wk=monday(UI.wkView==='week'?UI.wk:UI.day);render()},
+  dayNav:d=>{UI.day=+d.v===0?today():addDays(UI.day,+d.v);UI.wk=monday(UI.day);render()},
+  monNav:d=>{const[Y,M]=UI.month.split('-').map(Number),x=new Date(Y,M-1+ +d.v,1);UI.month=x.getFullYear()+'-'+pad(x.getMonth()+1);render()},
+  openDay:d=>{UI.day=d.v;UI.wk=monday(d.v);UI.wkView='day';render();scrollTo(0,0)},
   wkReset:()=>{delete S.weeks[UI.wk];save();render()},
   wkMakeDefault:()=>confirmSheet('Use this week as your default week?','Make default',()=>{S.basePlan=S.weeks[UI.wk].map(a=>a.slice());delete S.weeks[UI.wk];save();render();toast('Default week updated')},false),
   dayAdd:d=>{
