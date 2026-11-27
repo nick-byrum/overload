@@ -1,6 +1,6 @@
 {
-  "name": "Ascent",
-  "short_name": "Ascent",
+  "name": "Apex",
+  "short_name": "Apex",
   "description": "Lift tracker built around rep ranges, effort and progressive overload",
   "start_url": "./",
   "scope": "./",

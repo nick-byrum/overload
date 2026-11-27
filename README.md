@@ -1,4 +1,4 @@
-# Ascent
+# Apex
 
 A lift tracker built around rep ranges and progressive overload. It installs on your phone and works offline.
 

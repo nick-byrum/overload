@@ -7,7 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<title>Ascent</title>
+<title>Apex</title>
 <style>
 @font-face{font-family:Cond;src:url(fonts/barlow-condensed-latin-600-normal.woff2) format('woff2');font-weight:600;font-display:swap}
 @font-face{font-family:Cond;src:url(fonts/barlow-condensed-latin-700-normal.woff2) format('woff2');font-weight:700;font-display:swap}
@@ -969,7 +969,7 @@ function vLib(){
     h+=`<div class="card"><div class="row"><div class="sp"><b>Barbell weight</b><div class="sub">For the plate calculator</div></div><div class="seg" style="width:170px">${[45,35,33].map(v=>`<button data-act="bar" data-v="${v}" class="${+S.settings.bar===v?'on':''}">${v}</button>`).join('')}</div></div></div>`;
     h+=`<div class="card"><b>Backup</b><div class="sub">Your data lives on this phone. Export a backup now and then.${S.lastBackup?` Last backup: ${fmtD(dk(S.lastBackup))}.`:' No backup yet.'}</div><div class="gap"></div><div class="row"><button class="btn sp" data-act="export">Export</button><button class="btn sp" data-act="import">Import</button><button class="btn sp" data-act="csv">CSV</button></div><input type="file" id="impF" accept=".json,application/json" hidden></div>`;
     h+=`<details class="card"><summary style="font-weight:700;min-height:28px;cursor:pointer">Advanced</summary><div class="gap"></div>${driveCard()}<div class="card" style="margin:0"><div class="row"><div class="sp"><b>Erase everything</b><div class="sub">Can't be undone</div></div><button class="btn sm danger" data-act="wipe">Erase</button></div></div></details>`;
-    h+=`<div class="muted-note" style="text-align:center">Ascent v2.1 · ${pl(S.sessions.filter(s=>s.finishedAt).length,'workout')} logged</div>`;
+    h+=`<div class="muted-note" style="text-align:center">Apex v2.1 · ${pl(S.sessions.filter(s=>s.finishedAt).length,'workout')} logged</div>`;
   }
   return h;
 }
@@ -1420,16 +1420,16 @@ const A={
   rest:d=>{S.settings.rest=+d.v;save();render()},
   export:()=>{
     S.lastBackup=Date.now();save(true);
-    download(new Blob([JSON.stringify(S,null,1)],{type:'application/json'}),`ascent-backup-${today()}.json`);render();
+    download(new Blob([JSON.stringify(S,null,1)],{type:'application/json'}),`apex-backup-${today()}.json`);render();
   },
   csv:()=>{
     const q=v=>{v=String(v??'');return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
     const rows=[['date','workout','exercise','set_type','weight_lb','reps','rir','deload','pain','note']];
     S.sessions.filter(s=>s.finishedAt).sort((a,b)=>a.date<b.date?-1:1).forEach(s=>s.entries.forEach(en=>{const e=ex(en.exId);en.log.filter(x=>x.done).forEach(x=>rows.push([s.date,s.name,e?e.name:'',x.t?STNAME[x.t].split(' (')[0]:'Working',x.w===''?'BW':x.w,x.r,x.rir,s.deload?1:0,en.pain?1:0,en.note||'']))}));
-    download(new Blob([rows.map(r=>r.map(q).join(',')).join('\n')],{type:'text/csv'}),`ascent-sets-${today()}.csv`);
+    download(new Blob([rows.map(r=>r.map(q).join(',')).join('\n')],{type:'text/csv'}),`apex-sets-${today()}.csv`);
   },
   import:()=>{const f=$('#impF');f.onchange=async()=>{const file=f.files[0];if(!file)return;try{const d=JSON.parse(await file.text());if(!d||!Array.isArray(d.sessions)||!Array.isArray(d.exercises))throw 0;
-    confirmSheet('Replace all current data with this backup?','Replace',()=>{const keep=gKeep();localStorage.setItem(KEY,JSON.stringify(d));load();rescore();S.settings=Object.assign(S.settings,keep);save(true);applyAccent();render();toast('Backup restored')})}catch(e){toast('That file isn’t an Ascent backup')}};f.click()},
+    confirmSheet('Replace all current data with this backup?','Replace',()=>{const keep=gKeep();localStorage.setItem(KEY,JSON.stringify(d));load();rescore();S.settings=Object.assign(S.settings,keep);save(true);applyAccent();render();toast('Backup restored')})}catch(e){toast('That file isn’t an Apex backup')}};f.click()},
   wipe:()=>confirmSheet('Erase all workouts, exercises and weigh-ins?','Erase everything',()=>{S=blank();S.startDate=today();T=null;save(true);render()}),
   gSaveId:()=>{const v=($('#gcid').value||'').trim();if(!/\.apps\.googleusercontent\.com$/.test(v))return toast('That doesn’t look like a client ID');S.settings.gcid=v;G.client=null;save(true);gBoot();render();toast('Saved — now tap Connect')},
   gEditId:()=>{S.settings.gOn=false;S.settings.gcid='';G.client=null;save(true);render()},
@@ -1507,8 +1507,8 @@ async function shareCard(s,o){
   const st=[['TIME',o.mins>0&&o.mins<400?o.mins+'m':'–'],['SETS',o.sets],['VOLUME',o.vload>=1e4?r1(o.vload/1000)+'k':Math.round(o.vload)],['PRS',prCount(s)]];
   st.forEach(([k,v],i)=>{const x=80+i*240;g.fillStyle='#9095a0';g.font='700 34px Cond, sans-serif';g.fillText(k,x,420);g.fillStyle=k==='PRS'&&prCount(s)?'#ffc83d':'#fff';g.font='800 110px Cond, sans-serif';g.fillText(String(v),x,530)});
   let y=650;s.entries.slice(0,7).forEach(en=>{const e=ex(en.exId),dn=doneSets(en);if(!dn.length)return;const pr=prIds(s).has(en.exId);g.fillStyle=pr?'#ffc83d':'#fff';g.font='700 52px Cond, sans-serif';g.fillText((e?e.name:'').toUpperCase().slice(0,22)+(pr?'  PR':''),80,y);g.fillStyle='#9095a0';g.font='600 40px Cond, sans-serif';g.fillText(dn.map(x=>setLab(x,e)).join('   ').slice(0,44),80,y+50);y+=110});
-  g.fillStyle=ac;g.fillRect(80,1250,120,10);g.fillStyle='#fff';g.font='800 46px Cond, sans-serif';g.fillText('ASCENT',220,1268);
-  c.toBlob(async b=>{const file=new File([b],`ascent-${s.date}.png`,{type:'image/png'});try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});return}}catch(e){if(e&&e.name==='AbortError')return}download(b,file.name)},'image/png');
+  g.fillStyle=ac;g.fillRect(80,1250,120,10);g.fillStyle='#fff';g.font='800 46px Cond, sans-serif';g.fillText('APEX',220,1268);
+  c.toBlob(async b=>{const file=new File([b],`apex-${s.date}.png`,{type:'image/png'});try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file]});return}}catch(e){if(e&&e.name==='AbortError')return}download(b,file.name)},'image/png');
 }
 /* ================= drag & drop on week ================= */
 let drag=null;
@@ -1625,9 +1625,9 @@ async function gSync(loud){
 }
 async function gRestore(){
   try{
-    const id=await gFindFile();if(!id)return toast('No Ascent backup in your Drive yet');
+    const id=await gFindFile();if(!id)return toast('No Apex backup in your Drive yet');
     const r=await gApi(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`);if(!r.ok)throw new Error('Drive error '+r.status);
-    const d=await r.json();if(!d||!Array.isArray(d.sessions))throw new Error('Drive file isn’t an Ascent backup');
+    const d=await r.json();if(!d||!Array.isArray(d.sessions))throw new Error('Drive file isn’t an Apex backup');
     const n=d.sessions.filter(x=>x.finishedAt).length;
     confirmSheet(`Replace the data on this phone with your Drive backup (${pl(n,'workout')})?`,'Replace',()=>{const keep=gKeep();keep.gFile=id;localStorage.setItem(KEY,JSON.stringify(d));load();rescore();S.settings=Object.assign(S.settings,keep);save(true);applyAccent();render();toast('Restored from Drive')});
   }catch(e){toast(e.message)}
