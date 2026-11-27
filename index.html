@@ -1645,9 +1645,12 @@ function driveCard(){
 
 /* ================= Nick's program (added once) ================= */
 // Adds the exercises and the five workouts if they aren't already there. Matching is by name, so nothing is duplicated.
-const PROGRAM_V=1;
+const PROGRAM_V=2;
 function seedProgram(){
-  if((S.seedv||0)>=PROGRAM_V)return;
+  if((S.seedv||0)<1)seedV1();
+  if((S.seedv||0)<2)seedV2();
+}
+function seedV1(){
   const X=[
    // name, primary, secondary, opts
    ['Incline Plate Press',['Chest'],['Front Delts','Triceps'],{inc:10}],
@@ -1697,7 +1700,33 @@ function seedProgram(){
   });
   // Two hard sets per lift: the 10–20 default reads as "under" for everything, so start at 6–12.
   if(S.settings.volLo===10&&S.settings.volHi===20&&!Object.keys(S.settings.vt).length){S.settings.volLo=6;S.settings.volHi=12}
-  S.seedv=PROGRAM_V;save(true);
+  S.seedv=1;save(true);
+}
+
+// v2: close the volume gaps (hamstrings, rear delts, quads, calves, side delts, adductors).
+function seedV2(){
+  const byName=n=>S.exercises.find(e=>e.name.toLowerCase()===n.toLowerCase());
+  const add=(name,primary,secondary,o={})=>{let e=byName(name);if(!e){e={id:uid(),name,primary,secondary,inc:o.inc||5,notes:o.notes||'',bw:false,uni:!!o.uni,bar:false,prog:'auto',rest:0,alts:[],time:false};S.exercises.push(e)}else if(e.archived)delete e.archived;return e};
+  const rdf=add('Rear Delt Fly (Pec Deck)',['Rear Delts'],['Upper Back'],{inc:5});
+  const slc=add('Seated Leg Curl',['Hamstrings'],[],{inc:5});
+  const llc=add('Lying Leg Curl',['Hamstrings'],[],{inc:5});
+  const hs=add('Hack Squat',['Quads'],['Glutes','Adductors'],{inc:10});
+  const lp=add('Leg Press',['Quads'],['Glutes','Adductors'],{inc:10});
+  [[hs,lp],[lp,hs],[slc,llc],[llc,slc]].forEach(([a,b])=>{if(!a.alts.includes(b.id))a.alts.push(b.id)});
+  // Find the program's workouts (named "Upper" or "Upper (new)") by a lift only they contain.
+  const find=(name,key)=>{const k=byName(key);return S.templates.filter(t=>(t.name===name||t.name===name+' (new)')&&k&&t.items.some(i=>i.exId===k.id)).pop()};
+  const it=(e,sets,lo,hi,lastRir=0)=>({exId:e.id,sets,repMin:lo,repMax:hi,rir:1,lastRir,wu:0,sup:false});
+  const after=(t,key,item)=>{if(!t||t.items.some(i=>i.exId===item.exId))return;const k=byName(key),i=k?t.items.findIndex(x=>x.exId===k.id):-1;t.items.splice(i<0?t.items.length:i+1,0,item)};
+  const sets=(t,key,n)=>{const k=byName(key);if(!t||!k)return;t.items.forEach(x=>{if(x.exId===k.id)x.sets=Math.max(+x.sets,n)})};
+  const U=find('Upper','Incline Plate Press'),L=find('Lower','Bulgarian Split Squat'),P=find('Push','Incline Smith Press'),Pl=find('Pull','Low Row'),G=find('Legs','Copenhagen Plank');
+  after(Pl,'Low Row',it(rdf,2,10,15));
+  after(L,'Bulgarian Split Squat',it(slc,2,8,10));
+  after(G,'Leg Extension (BFR)',it(hs,2,6,10));
+  after(G,'Copenhagen Plank',it(llc,2,8,10));
+  sets(L,'Calf Raise',3);sets(G,'Calf Raise',3);
+  sets(U,'DB Lateral Raise',3);sets(P,'Cable Lateral Raise',3);
+  sets(G,'Copenhagen Plank',3);
+  S.seedv=2;save(true);
 }
 
 /* ================= boot ================= */
