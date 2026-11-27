@@ -1,11 +1,20 @@
-# Overload
+# Ascent
 
 A lift tracker built around rep ranges and progressive overload. It installs on your phone and works offline.
+
+## What's new in v2
+
+- **Redesign:** condensed display type, one accent color (pick yours in Settings), PR celebrations, a ring rest timer and a new icon.
+- **Fixes:** bodyweight sets with a blank weight are no longer dropped on Finish. Retired lifts keep their history. Suggestions use each workout slot's own history. Rep-range changes back-calculate a load from e1RM. Deloads stay out of charts. Past weeks keep their plan when the default week changes. Two open tabs can't overwrite each other.
+- **Smarter coaching:** "Auto" progression follows your first set when you train at 0–1 RIR. The stall check now uses an 8-session trend and is phase-aware. Layoffs over 4 weeks start ~10% lighter.
+- **New:** bulk/cut/maintain phases, training blocks with an RIR ramp and auto deload, per-set "Prev" column (tap to copy), last-set RIR targets, warm-up ramps in templates, lengthened-partial sets, pain flags, skip days, alternates for one-tap swaps, plate math, a lift board with trends, weekly volume by muscle, per-muscle targets, a consistency heatmap and streak, a workout recap with share card, progress photos, waist tracking, bodyweight rate vs goal, and CSV export.
+
+Your existing data upgrades automatically the first time v2 opens.
 
 ## Put it on your phone (one time, about 10 minutes)
 
 1. On GitHub, create a new **public** repository named `overload`.
-2. Click **"uploading an existing file"**, drag in every file from this folder, and commit.
+2. Click **"uploading an existing file"**, drag in every file from this folder (including the `fonts` folder), and commit.
 3. Go to **Settings → Pages**. Under "Build and deployment," set Source to **Deploy from a branch**, Branch to **main**, folder **/ (root)**, and save.
 4. Wait about a minute. Your app is live at `https://<your-username>.github.io/overload/`.
 5. On your Android phone, open that link in **Chrome**, tap the **⋮** menu, then **Add to Home screen → Install**.

@@ -1,16 +1,29 @@
 {
-  "name": "Overload",
-  "short_name": "Overload",
-  "description": "Lift tracker built around rep ranges and progressive overload",
+  "name": "Ascent",
+  "short_name": "Ascent",
+  "description": "Lift tracker built around rep ranges, effort and progressive overload",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0b0b0d",
-  "theme_color": "#0b0b0d",
+  "background_color": "#07080a",
+  "theme_color": "#07080a",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }
